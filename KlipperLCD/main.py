@@ -193,6 +193,10 @@ class KlipperLCD ():
                 self.wait_probe = True
             else:
                 self.printer.probe_adjust(data)
+        elif evt == self.lcd.evt.Z_TILT:
+            self.printer.z_tilt()
+        elif evt == self.lcd.evt.SCREWS_TILT:
+            self.printer.screws_tilt()
         elif evt == self.lcd.evt.PROBE_COMPLETE:
             self.wait_probe = False
             print("Save settings!")

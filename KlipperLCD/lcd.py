@@ -102,6 +102,8 @@ class LCDEvents():
     POSITION_X       = 33  # Add by Oren
     POSITION_Y       = 34  # Add by Oren
     POSITION_Z       = 35  # Add by Oren
+    Z_TILT           = 36  # Add by Oren
+    SCREWS_TILT      = 37  # Add by Oren
 
 
 class LCD:
@@ -937,24 +939,24 @@ class LCD:
                 self.write("adjustzoffset.z_offset.val=%d" % (int)(offset * 100))
                 self.callback(self.evt.Z_OFFSET, offset)
                 self.printer.z_offset = offset
-        elif data[0] == 0x04:
+        elif data[0] == 0x04:   # Add by Oren
             self.z_offset_unit = 1
             # self.write("adjustzoffset.zoffset_value.val=1")
-        elif data[0] == 0x05:
+        elif data[0] == 0x05:   # Add by Oren
             self.z_offset_unit = 0.1
             # self.write("adjustzoffset.zoffset_value.val=2")
-        elif data[0] == 0x06:
+        elif data[0] == 0x06:   # Add by Oren
             self.z_offset_unit = 0.05
             # self.write("adjustzoffset.zoffset_value.val=3")
-        elif data[0] == 0x07:
+        elif data[0] == 0x07:   # Add by Oren
             self.z_offset_unit = 0.025
             # self.write("adjustzoffset.zoffset_value.val=4")
-        elif data[0] == 0x08:
+        elif data[0] == 0x08:   # Add by Oren
             self.z_offset_unit = 0.01
             # self.write("adjustzoffset.zoffset_value.val=5")
-        elif data[0] == 0x09:
+        elif data[0] == 0x09:   # Add by Oren
             self.callback(self.evt.PROBE,"ACCEPT")
-        elif data[0] == 0x0a:
+        elif data[0] == 0x0a:   # Add by Oren
             self.callback(self.evt.PROBE,"ABORT")
         elif data[0] == 0x0b: # LED 2 TODO: Where is LED2??
             print("Toggle led2!!????")
@@ -999,6 +1001,10 @@ class LCD:
             #status = self.callback(self.evt.PRINT_STATUS)
             self.write("printpause.printprocess.val=%d" % self.printer.percent)
             self.write("printpause.printvalue.txt=\"%d\"" % self.printer.percent)
+        elif data[0] == 0x12:   # Add by Oren
+            self.callback(self.evt.Z_TILT)
+        elif data[0] == 0x13:   # Add by Oren
+            self.callback(self.evt.SCREWS_TILT)
         else:
             print("_BedLevelFun: Data not recognised %d" % data[0])
     

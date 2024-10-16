@@ -250,6 +250,7 @@ class PrinterData:
 			'fan_speed': [100]
 		}
 		self.job_Info               = None
+		self.config					= {} # Add by Oren
 		self.file_path              = None
 		self.file_name              = None
 		self.status                 = None
@@ -391,6 +392,14 @@ class PrinterData:
 		if self.ishomed() == False:
 			self.sendGCode('G28')
 		self.sendGCode('PROBE_CALIBRATE')
+	
+	def z_tilt(self):
+		print("z_tile_adjust")
+		self.sendGCode('Z_TILT_ADJUST')
+
+	def screws_tilt(self):
+		print("screws_tilt_calculate")
+		self.sendGCode("SCREWS_TILT_CALCULATE")
 
 	# ------------- OctoPrint Function ----------
 
@@ -612,12 +621,11 @@ class PrinterData:
 	
 	def firmware_restart(self): #fixed (Add by Oren)
 		print('Firmware_restart')
-		self.postREST('/printer/firmware_restart', json=None)
+		self.postREST('/printer/firmware_restart', json='method')
 	
 	def host_restart(self): #fixed (Add by Oren)
 		print('Host restart')
 		self.postREST('/printer/restart', json=None)
-
 
 	def set_print_speed(self, fr):
 		self.print_speed = fr
