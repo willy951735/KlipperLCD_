@@ -635,12 +635,8 @@ class PrinterData:
 		self.flow_percentage = fl
 		self.sendGCode('M221 S%d' % fl)
 
-	def set_led(self, led):
-		self.led_percentage = led
-		if(led > 0):
-			self.sendGCode('SET_LED LED=top_LEDs WHITE=0.5 SYNC=0 TRANSMIT=1')
-		else:
-			self.sendGCode('SET_LED LED=top_LEDs WHITE=0 SYNC=0 TRANSMIT=1')
+	def set_led(self, command):
+		self.sendGCode(command)
 
 	def set_fan(self, fan):
 		self.fan_percentage = fan
@@ -648,8 +644,10 @@ class PrinterData:
 
 	def home(self, axis): #fixed using gcode
 		GCode = 'G28 '
-		if axis == 'X' or axis == 'Y' or axis == 'Z' or axis == 'X Y Z':
+		if axis == 'X' or axis == 'Y' or axis == 'Z' or axis == 'X Y':
 			GCode += axis
+		elif axis == 'X Y Z':
+			self.sendGCode('G28')
 		else:
 			print("home: parameter not recognised" + axis)
 			return
@@ -698,3 +696,17 @@ class PrinterData:
 
 	def setZOffset(self, offset):
 		self.sendGCode('SET_GCODE_OFFSET Z=%s MOVE=1' % offset)
+	
+	def getScrewsTileAdjust(self,command):
+		try:
+			self.postREST('/server/jsonrpc', json={'method': command})
+		except:
+			print("Error 1")
+		try:
+			self.postREST('/server/jsonrpc', json={'gcode_response': command})
+		except:
+			print("Error 1")
+		try:
+			self.postREST('/server/jsonrpc', json={'method': command})
+		except:
+			print("Error 1")

@@ -559,7 +559,7 @@ class LCD:
                 self.write("page nosdcard")
 
         elif data[0] == 2: # Abort print
-            print("Abort print not supported") #TODO: 
+            print("Abort print not supported") #TODO:
         else:
             print("_MainPage: %d not supported" % data[0])
     
@@ -685,9 +685,19 @@ class LCD:
             self.accel_unit = 50
         elif data[0] == 0x07: # Move 10mm / 10C /10%
             self.temp_unit = 10
-            self.speed_unit = 100
+            self.speed_unit = 200
             self.move_unit = 10
             self.accel_unit = 3000
+        elif data[0] == 0x15: # Move 25mm / 10C /10% # Add by Oren
+            # self.temp_unit = 10
+            self.speed_unit = 200
+            self.move_unit = 25
+            self.accel_unit = 5000
+        elif data[0] == 0x16: # Move 50mm / 10C /10% # Add by Oren
+            self.temp_unit = 10
+            self.speed_unit = 200
+            self.move_unit = 50
+            self.accel_unit = 7500
         elif data[0] == 0x08: # + temp
             if self.adjusting == 'Hotend':
                 self.printer.hotend_target += self.temp_unit
@@ -963,12 +973,10 @@ class LCD:
         elif data[0] == 0x0C: # Light control
             if self.light == True:
                 self.light = False
-                self.write("status_led2=0")
-                self.callback(self.evt.LIGHT, 0)
+                self.callback(self.evt.LIGHT, "close_led")
             else:
                 self.light = True
-                self.write("status_led2=1")
-                self.callback(self.evt.LIGHT, 128)
+                self.callback(self.evt.LIGHT, "open_led")
 
         elif data[0] == 0x0d: # Bed mesh leveling
             # Wait for heaters?
@@ -1012,10 +1020,12 @@ class LCD:
         if data[0] == 0x04: #Home all
             self.callback(self.evt.HOME, 'X Y Z')
         elif data[0] == 0x05: #Home X
+            self.callback(self.evt.HOME, 'X Y')
+        elif data[0] == 0x06: #Home X
             self.callback(self.evt.HOME, 'X')
-        elif data[0] == 0x06: #Home Y
+        elif data[0] == 0x07: #Home Y
             self.callback(self.evt.HOME, 'Y')
-        elif data[0] == 0x07: #Home Z
+        elif data[0] == 0x08: #Home Z
             self.callback(self.evt.HOME, 'Z')
         else:
             print("_AxisPageSelect: Data not recognised %d" % data[0])
