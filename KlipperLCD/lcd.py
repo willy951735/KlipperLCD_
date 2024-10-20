@@ -1,3 +1,5 @@
+#Ver 1.2.1
+
 import binascii
 from time import sleep
 from threading import Thread
@@ -1019,7 +1021,7 @@ class LCD:
     def _AxisPageSelect(self, data):
         if data[0] == 0x04: #Home all
             self.callback(self.evt.HOME, 'X Y Z')
-        elif data[0] == 0x05: #Home X
+        elif data[0] == 0x05: #Home X Y
             self.callback(self.evt.HOME, 'X Y')
         elif data[0] == 0x06: #Home X
             self.callback(self.evt.HOME, 'X')
