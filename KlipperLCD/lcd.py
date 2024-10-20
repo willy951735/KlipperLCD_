@@ -1,4 +1,4 @@
-#Ver 1.2.1
+#Ver 1.2.5
 
 import binascii
 from time import sleep
@@ -277,7 +277,7 @@ class LCD:
                 color16.append(rgb)
 
         output_data = bytearray(height * width * 10)
-        # result_int = lib_col_pic.ColPic_EncodeStr(color16, width, height, output_data, width * height * 10, 1024)
+        result_int = lib_col_pic.ColPic_EncodeStr(color16, width, height, output_data, width * height * 10, 1024)
 
         each_max = 512
         j = 0
@@ -299,8 +299,7 @@ class LCD:
 
             # Clear screen
             self.clear_thumbnail()   
-
-            sleep(0.2)
+            sleep(1)
 
             for bytes in result:
                 self.write("printpause.cp0.aph=0")
@@ -311,7 +310,7 @@ class LCD:
                 self.write("\"")
 
                 self.write(("printpause.va1.txt+=printpause.va0.txt"))
-                sleep(0.02)
+                sleep(0.05)
 
             sleep(0.2)
             self.write("printpause.cp0.aph=127")
@@ -319,9 +318,9 @@ class LCD:
             self.is_thumbnail_written = True
             print("Write thumbnail to LCD done!")
         
-        if self.askprint == True:
-            self.write("askprint.cp0.aph=127")
-            self.write("askprint.cp0.write(printpause.va1.txt)")            
+        # if self.askprint == True: # Annotation by Oren
+        #     self.write("askprint.cp0.aph=127") #Annotation by Oren
+        #     self.write("askprint.cp0.write(printpause.va1.txt)") #Annotation by Oren            
    
     def clear_console(self):
         self.write("console.buf.txt=\"\"")
@@ -542,15 +541,16 @@ class LCD:
             files = self.callback(self.evt.FILES)
             self.files = files
             if (files):
-                self.write("page file1")
                 i = 0
                 for file in files:
+                    sleep(0.03)
                     page_num = ((i / 5) + 1)
-                    if page_num <= 6:
+                    if page_num < 6:
                         self.write("file%d.t%d.txt=\"%s\"" % (page_num, i, file))
                     else:
                         pass
                     i += 1
+                self.write("page file1")
 
             else:
                 self.files = False
@@ -1141,7 +1141,7 @@ class LCD:
         # print(self.files) # Annotation by Oren
         if self.files and data[0] <= len(self.files):
             self.selected_file = (data[0] - 1) 
-            # self.write("askprint.t0.txt=\"%s\"" % self.files[self.selected_file]) # Annotation by Oren
+            self.write("askprint.t0.txt=\"%s\"" % self.files[self.selected_file]) # Annotation by Oren
             self.write("printpause.t0.txt=\"%s\"" % self.files[self.selected_file])
             # self.write("askprint.cp0.close()")    # Annotation by Oren
             # self.write("askprint.cp0.aph=0")  # Annotation by Oren

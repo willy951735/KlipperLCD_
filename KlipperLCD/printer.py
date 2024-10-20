@@ -1,4 +1,4 @@
-#Ver 1.2.1
+#Ver 1.2.5
 
 import asyncio
 import atexit

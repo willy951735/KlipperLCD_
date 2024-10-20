@@ -1,4 +1,4 @@
-#Ver 1.2.1
+#Ver 1.2.5
 
 import getopt
 import sys
@@ -29,7 +29,7 @@ class KlipperLCD ():
         self.lcd.write_gcode_store(gcode_store) #Annotation by Oren
 
         macros = self.printer.get_macros()
-        # self.lcd.write_macros(macros) #Annotation by Oren
+        self.lcd.write_macros(macros) #Annotation by Oren
 
         print(self.printer.MACHINE_SIZE)
         print(self.printer.SHORT_BUILD_VERSION)
@@ -128,7 +128,7 @@ class KlipperLCD ():
                 img = base64.b64decode(b64)        
                 
                 # Write thumbnail to LCD
-                #self.lcd.write_thumbnail(img)
+                self.lcd.write_thumbnail(img)
             else:
                 self.lcd.clear_thumbnail()
                 print("Aborting thumbnail, no image found")
