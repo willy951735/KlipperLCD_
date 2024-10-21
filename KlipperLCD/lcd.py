@@ -1,4 +1,4 @@
-#Ver 1.2.5
+#Version 1.2.6
 
 import binascii
 from time import sleep
