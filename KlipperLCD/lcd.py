@@ -258,8 +258,8 @@ class LCD:
         # Open as image
         im = Image.open(BytesIO(img))
         width, height = im.size
-        if width != 190 or height != 190:
-            im = im.resize((190, 190))
+        if width != 200 or height != 200:
+            im = im.resize((200, 200))
             width, height = im.size
 
         pixels = im.load()
@@ -415,6 +415,7 @@ class LCD:
                 print("Printer state: %s" % data.state)
                 if data.state == "printing":
                     print("Ongoing print detected")
+                    self.write("printpause.p1.pic=23") # Add by Oren
                     self.write("page printpause")
                     self.write("restFlag1=0")
                     self.write("restFlag2=1")
@@ -427,10 +428,11 @@ class LCD:
                     if self.is_thumbnail_written == False:
                         self.callback(self.evt.THUMBNAIL, None)
                 elif (data.state == "cancelled"):
-                    self.write("page main")
+                    # self.write("page main") # Annotation by Oren
                     self.is_thumbnail_written = False
                 elif (data.state == "complete"):
-                    self.write("page printfinish")
+                    self.write("printpause.p1.pic=21") # Add by Oren
+                    # self.write("page printfinish") # Annotation by Oren
                     self.is_thumbnail_written = False
 
         if data != self.printer:
@@ -1119,6 +1121,7 @@ class LCD:
             self.write("printpause.printvalue.txt=\"0\"")
             self.write("printpause.printprocess.val=0")
             self.write("leveldata.z_offset.val=%d" % (int)(self.printer.z_offset * 100))
+            self.write("printpause.p1.pic=22")
             self.write("page printpause")
             self.write("restFlag2=1")
             #self.write("printpause.cp0.close()")
