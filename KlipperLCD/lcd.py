@@ -1,4 +1,4 @@
-#Version 1.2.6
+#Version 1.3.2
 
 import binascii
 from time import sleep
@@ -67,6 +67,7 @@ class _printerData():
     max_accel              = None
     minimum_cruise_ratio   = None
     square_corner_velocity = None
+    local_time_display     = None # Add by Oren
 
 class LCDEvents():
     HOME           = 1
@@ -415,15 +416,15 @@ class LCD:
                 print("Printer state: %s" % data.state)
                 if data.state == "printing":
                     print("Ongoing print detected")
+                    # self.write("page printpause")
                     self.write("printpause.p1.pic=23") # Add by Oren
-                    self.write("page printpause")
                     self.write("restFlag1=0")
                     self.write("restFlag2=1")
                     if self.is_thumbnail_written == False:
                         self.callback(self.evt.THUMBNAIL, None)
                 elif data.state == "paused" or data.state == "pausing":
                     print("Ongoing pause detected")
-                    self.write("page printpause")
+                    # self.write("page printpause") # Annotation by Oren
                     self.write("restFlag1=1")
                     if self.is_thumbnail_written == False:
                         self.callback(self.evt.THUMBNAIL, None)
@@ -538,29 +539,33 @@ class LCD:
             self.callback(self.evt.CONSOLE, data.decode())
 
     def _MainPage(self, data):
+        state = self.printer.state
         if data[0] == 1: # Print
             # Request files
-            files = self.callback(self.evt.FILES)
-            self.files = files
-            if (files):
-                i = 0
-                for file in files:
-                    sleep(0.03)
-                    page_num = ((i / 5) + 1)
-                    if page_num < 6:
-                        self.write("file%d.t%d.txt=\"%s\"" % (page_num, i, file))
-                    else:
-                        pass
-                    i += 1
-                self.write("page file1")
-
-            else:
-                self.files = False
-                # Clear old files from LCD
-                for i in range(0, MaxFileNumber):
+            if state not in ["printing", "paused", "pausing"]:
+                files = self.callback(self.evt.FILES)
+                self.files = files
+                if (files):
+                    i = 0
+                    for file in files:
+                        sleep(0.03)
                         page_num = ((i / 5) + 1)
-                        self.write("file%d.t%d.txt=\"\"" % (page_num, i))              
-                self.write("page nosdcard")
+                        if page_num < 6:
+                            self.write("file%d.t%d.txt=\"%s\"" % (page_num, i, file))
+                        else:
+                            pass
+                        i += 1
+                    self.write("page file1")
+
+                else:
+                    self.files = False
+                    # Clear old files from LCD
+                    for i in range(0, MaxFileNumber):
+                            page_num = ((i / 5) + 1)
+                            self.write("file%d.t%d.txt=\"\"" % (page_num, i))              
+                    self.write("page nosdcard")
+            else:
+                self.write("page printpause")
 
         elif data[0] == 2: # Abort print
             print("Abort print not supported") #TODO:
@@ -622,7 +627,7 @@ class LCD:
     def _StopPrint(self, data):  
         if data[0] == 0x01 or data[0] == 0xf1:
             self.callback(self.evt.PRINT_STOP)
-            self.write("resumeconfirm.t1.txt=\"Stopping print. Please wait!\"")
+            # self.write("resumeconfirm.t1.txt=\"Stopping print. Please wait!\"")
         elif data[0] == 0xF0:
             if self.printer.state == "printing":
                 self.write("page printpause")
@@ -635,7 +640,7 @@ class LCD:
                 self.write("page pauseconfirm")
         elif data[0] == 0xF1:
             self.callback(self.evt.PRINT_PAUSE)
-            self.write("page printpause")
+            # self.write("page printpause")
         else:
             print("_PausePrint: %d not supported" % data[0])
            
@@ -643,7 +648,7 @@ class LCD:
         if data[0] == 0x01:
             if self.printer.state == "paused" or self.printer.state == "pausing":
                 self.callback(self.evt.PRINT_RESUME)
-            self.write("page printpause")
+            # self.write("page printpause") # Annotation by Oren
         else:
             print("_ResumePrint: %d not supported" % data[0])
     
@@ -1121,8 +1126,8 @@ class LCD:
             self.write("printpause.printvalue.txt=\"0\"")
             self.write("printpause.printprocess.val=0")
             self.write("leveldata.z_offset.val=%d" % (int)(self.printer.z_offset * 100))
-            self.write("printpause.p1.pic=22")
             self.write("page printpause")
+            self.write("printpause.p1.pic=22")
             self.write("restFlag2=1")
             #self.write("printpause.cp0.close()")
             #self.write("printpause.cp0.aph=0")
@@ -1143,7 +1148,7 @@ class LCD:
     def _SelectFile(self, data):
         # print(self.files) # Annotation by Oren
         if self.files and data[0] <= len(self.files):
-            self.selected_file = (data[0] - 1) 
+            self.selected_file = (data[0] - 1)
             self.write("askprint.t0.txt=\"%s\"" % self.files[self.selected_file]) # Annotation by Oren
             self.write("printpause.t0.txt=\"%s\"" % self.files[self.selected_file])
             # self.write("askprint.cp0.close()")    # Annotation by Oren
